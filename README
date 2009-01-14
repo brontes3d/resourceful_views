@@ -1,0 +1,97 @@
+= ResourcefulViews - Define default views for resourceful controllers
+
+ResourcefulViews was designed as an extension of MakeResourceful[http://mr.hamptoncatlin.com/]. It has no dependency on MakeResourceful, but by providing things like +current_model+ and +current_object+, MakeResourceful make it easier to use ResourcefulViews to define clearly abstracted _default_ views.
+
+<b>ResourcefulViews seeks to DRY views by extending the concept of content_for[http://api.rubyonrails.org/classes/ActionView/Helpers/CaptureHelper.html#M001069] and by enabling the specification of default views.</b>
+
+===Default Views for your RESTful actions
+
+With ResourcefulViews, you typically want to create a <tt>show.html.erb</tt>, <tt>index.html.erb</tt>, <tt>edit.html.erb</tt> and <tt>new.html.erb</tt> in a folder called "default" which is in your base view folder.  (See the included examples for some possible starting point 'default' views)
+
+Call <tt>render_resource :show</tt> instead of <tt>render :action => 'show'</tt> and Rails will fallback on the 'show' implementation found in the default folder, if one is not found in the controller specific folder. (ResourcefulViews::ActionControllerExtensions)
+
+Follow this convention with all your RESTful controllers and you will have a scaffold-like view implementation available for each RESTful action.
+
+Of course, you need to make sure your 'default' view implementations are sufficiently abstract.
+
+For Example: While 'show' on the <tt>UsersController</tt> will probably make reference to <tt>@user</tt>.  The default implementation of 'show' will have to be more clever by using something like <tt>instance_variable_get("@#{controller_name.singularize}")</tt>.  In lieu of doing so in your views, it's helpful to define <tt>current_object</tt> on your controllers to return this instance variable appropriately.  (Something you get for free from MakeResourceful)
+
+
+===Default Views for partials
+
+The default views concept extends to partials as well via +render_resource_partial+ and +get_content_for+.  If rendering a partial from a controller action, use +render_resource_partial+ to achieve behavior similar to +render_resource+ for partials.
+
+If rendering a partial from within another view, use +get_content_for+. (ResourcefulViewsHelper.get_content_for)
+
+Example:
+	<%=get_content_for(:form)%>
+
+Will result in a check for partial named "_form" in first the controller specific view folder, and then in the defaults folder. The final source for the rendered content could also have come from a previous call to content_for.  ResourcefulViews checks for templates that fulfill content requests in a consistent defined order: controller, theme, default.
+
+Another Example:
+
+Often, we re-use components between our +edit+, and +new+ views.  We can use a partial called +_form+ by defining my default +edit+ and +new+ to each call:
+
+  <%=get_content_for('form')%>
+
+I can define <tt>_form.html.erb</tt> in my controller-specific view folder, and have this be the place where the form logic exists for that model.  example:
+
+	<% for column in current_model.content_columns %>
+
+	<p><b><%= column.human_name %>:</b>
+	<%= text_field(current_model.to_s.underscore, column.name) %></p>
+
+	<% end %>
+	
+
+=== More content_for
+
+Sometimes you want to pass an argument to +content_for+. ResourcefulViewsHelper.content_for_object is a way to do so.
+
+For Example:
+
+	<% content_for_object('listing_each') do | user | %>
+		<li>User <%=user.name%> is a <%=user.role%></li>
+	<% end %>
+	
+and then somewhere else where you can reference that content, you can recall it and use it:
+
+	<ul>
+	<% current_objects.each do |object| %>
+		<%=get_content_for_object('listing_each', object)%>
+	<% end %>
+	</ul>
+	
+And of course, you could also use an actual file called <tt>_listing_each.html.erb</tt>. Which might look something like this:
+
+<li>User <%=current_object.name%> is a <%=current_object.role%></li>
+
+(Notice that current_object is assigned by ResourcefulViews when it renders this views in the context of a request to get_content_for_object)
+
+
+(see also: ResourcefulViewsHelper.default_content_for)
+
+=== _defaults Views  (not to be confused with default views)
+
+ResourcefulViews provides a convention of naming your views as _additions_ instead of _overrides_.
+Instead of overriding the default implementation of +_form+ with my own in the users folder, I could create <tt>_form_defaults.html.erb</tt> which defines:
+
+	<% content_for('form') do %>
+		This is some additional content you will see at the top of the form
+	<% end %>
+	
+_form_defaults is automatically looked for an executed on the call to <tt>get_content_for('form')</tt>, which means that the content_for blocks defined in _form_defaults setup a means for customizing by addition instead of customizing by replacement.
+
+I haven't yet figured out how to make +_show_defaults+ execute off of <tt>render_resource(:show)</tt>, it only works for content_for and content_for_object.
+
+
+==== Conclusion
+
+The idea of this plugin is to provide flexible views tools to build your own version of Hobo[http://hobocentral.net/] or Streamlined[http://streamlinedframework.org/] or ActiveScaffold[http://activescaffold.com/] or AutoAdmin[http://code.trebex.net/auto-admin] in the 'defaults' folder, in such a way that you have the ability to override those components of that base view that you need to.
+
+(Of course, we don't provide a way to define default actions and controllers, but that's what we think MakeResourceful[http://mr.hamptoncatlin.com/] is for)
+
+
+Copyright (c) 2008 Brontes Technologies Inc., a 3M company, released under the MIT license.
+
+Authored by Jacob Burkhart.
