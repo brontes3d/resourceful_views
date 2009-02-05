@@ -4,6 +4,18 @@ class ApplicationController < ActionController::Base
     render_resource :index
   end
   
+  def render_action_test
+    render :action => 'render_action_test'
+  end
+  
+  def render_partial_test
+    render :partial => 'render_partial_test'
+  end
+  
+  def render_resource_partial_test
+    render_resource_partial :render_resource_partial_test        
+  end
+  
   def render_resource_test
     render_resource :render_resource_test    
   end

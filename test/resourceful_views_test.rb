@@ -13,7 +13,7 @@ class ResourcefulViewsTest < Test::Unit::TestCase
     @controller = LightController.new
     get "render_resource_test"
     assert_equal("this is default render_resource_test", @response.body)
-
+    
     #medium is overriden, so should return result of medium
     @controller = MediumController.new
     get "render_resource_test"
@@ -23,6 +23,57 @@ class ResourcefulViewsTest < Test::Unit::TestCase
     @controller = HeavyController.new
     get "render_resource_test"
     assert_equal("this is default render_resource_test and assertion from heavy _defaults", @response.body)
+  end
+
+  def test_render_action
+    #light is not overriden, so should return result of default
+    @controller = LightController.new
+    get "render_action_test"
+    assert_equal("this is default render_action_test", @response.body)
+    
+    #medium is overriden, so should return result of medium
+    @controller = MediumController.new
+    get "render_action_test"
+    assert_equal("this is medium render_action_test", @response.body)
+    
+    #heavy uses _defaults, so should return result of default and assert that heavy _defaults executed
+    @controller = HeavyController.new
+    get "render_action_test"
+    assert_equal("this is default render_action_test and assertion from heavy _defaults", @response.body)
+  end
+  
+  def test_render_resource_partial
+    #light is not overriden, so should return result of default
+    @controller = LightController.new
+    get "render_resource_partial_test"
+    assert_equal("this is default render_resource_partial_test", @response.body)
+
+    #medium is overriden, so should return result of medium
+    @controller = MediumController.new
+    get "render_resource_partial_test"
+    assert_equal("this is medium render_resource_partial_test", @response.body)
+    
+    #heavy uses _defaults, so should return result of default and assert that heavy _defaults executed
+    @controller = HeavyController.new
+    get "render_resource_partial_test"
+    assert_equal("this is default render_resource_partial_test and assertion from heavy _defaults", @response.body)    
+  end
+
+  def test_render_partial
+    #light is not overriden, so should return result of default
+    @controller = LightController.new
+    get "render_partial_test"
+    assert_equal("this is default render_partial_test", @response.body)
+
+    #medium is overriden, so should return result of medium
+    @controller = MediumController.new
+    get "render_partial_test"
+    assert_equal("this is medium render_partial_test", @response.body)
+    
+    #heavy uses _defaults, so should return result of default and assert that heavy _defaults executed
+    @controller = HeavyController.new
+    get "render_partial_test"
+    assert_equal("this is default render_partial_test and assertion from heavy _defaults", @response.body)    
   end
   
   def test_content_for_object
