@@ -114,7 +114,7 @@ module ResourcefulViewsHelper
       eval "@content_for_#{view.to_s} = capture(&block)"
     end
     # puts "yielding #{view}, content should be " + eval("@content_for_#{view.to_s}").inspect
-    concat(eval("yield :#{view.to_s}", block.binding), block.binding)
+    concat(eval("yield :#{view.to_s}", block.binding))
   end
     
   # Basically the equivalent of 

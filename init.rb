@@ -8,3 +8,7 @@ ActionController::Base.helper ResourcefulViewsHelper
 ActionController::Base.class_eval do
   include ResourcefulViews::ActionControllerExtensions
 end
+
+ActionView::Base.class_eval do
+  include ResourcefulViews::ActionViewExtensions
+end

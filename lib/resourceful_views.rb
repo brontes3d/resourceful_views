@@ -66,6 +66,45 @@ module ResourcefulViews
     end
   end
   
+  module ActionViewExtensions
+    def self.included(base)
+      base.class_eval do
+        alias_method_chain :_pick_template, :extra_default_paths
+      end
+    end
+    
+    def _pick_template_with_extra_default_paths(template_path)
+      begin
+        _pick_template_without_extra_default_paths(template_path)
+      rescue ActionView::MissingTemplate => e
+
+        template_exists_checker = Proc.new do |template_name|
+          begin
+            _pick_template_without_extra_default_paths(template_name) ? true : false
+          rescue ActionView::MissingTemplate
+            false
+          end
+        end
+
+        theme = nil
+        if self.respond_to?(:controller)
+          if controller.respond_to?(:resourceful_views_theme)
+            theme = controller.resourceful_views_theme(controller.action_name)
+          end
+        end
+
+        template_path = ResourcefulViews.determine_view_path_from_parts(template_path.split("/"), theme) do |path_base, path_last|
+          template_exists_checker.call("#{path_base}/#{path_last}")
+        end
+        if template_path
+          _pick_template_without_extra_default_paths(template_path)
+        else
+          raise e
+        end
+      end
+    end    
+  end
+  
   # Helper method for the various content_for-like methods provided by ResourcefulViewsHelper
   # 
   # Expected to be called with a block that can be used to determine if a template / erb file exists for a yielded base_path and file_name
@@ -79,15 +118,21 @@ module ResourcefulViews
   # * default folder
   # * nil
   #
-  def self.determine_view_path(controller, action, theme_given_explicitly = false)# :yields: base_path, file_name
+  def self.determine_view_path(controller, action, theme_given_explicitly = false, &block)# :yields: base_path, file_name
     controller_name = controller.class.controller_path
     action = action.to_s
     theme = nil
     if theme_given_explicitly
       theme = theme_given_explicitly
     elsif controller.respond_to?(:resourceful_views_theme)
-        theme = controller.resourceful_views_theme(action)
+      theme = controller.resourceful_views_theme(action)
     end
+    determine_view_path_from_parts([controller_name, action], theme, &block)
+  end
+  
+  def self.determine_view_path_from_parts(parts, theme = nil)
+    controller_name = parts.first
+    action = parts.last
     if( yield "#{controller_name}", "#{action}" )
       return "#{controller_name}/#{action}"
     elsif( theme && yield("themes/#{theme}", "#{action}") )
@@ -96,7 +141,7 @@ module ResourcefulViews
       return "default/#{action}"
     else
       return nil
-    end
+    end    
   end
   
 end
