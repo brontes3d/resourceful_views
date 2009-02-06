@@ -1,7 +1,7 @@
 require 'test/unit'
 require File.join(File.dirname(__FILE__), "test_helper")
 
-class ResourcefulViewsTest < Test::Unit::TestCase
+class ResourcefulViewsTest < ActionController::TestCase
 
   def setup
     @request    = ActionController::TestRequest.new
@@ -98,7 +98,7 @@ class ResourcefulViewsTest < Test::Unit::TestCase
     @controller = LightController.new
     get "default_content_for_test"
     assert_equal("content in default_content_for block", @response.body)
-
+    
     #default_content_for is overriden and then called
     @controller = MediumController.new
     get "default_content_for_test"
