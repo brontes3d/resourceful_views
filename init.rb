@@ -9,7 +9,7 @@ ActionController::Base.class_eval do
   include ResourcefulViews::ActionControllerExtensions
 end
 
-if ActionController::Base.public_methods.include?(:template_exists?)
+if ActionController::Base.private_instance_methods.include?('template_exists?')
   #Rails 2.2 and earlier:
   
   ActionView::Base.class_eval do

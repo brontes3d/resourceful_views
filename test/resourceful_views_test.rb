@@ -2,7 +2,8 @@ require 'test/unit'
 require File.join(File.dirname(__FILE__), "test_helper")
 
 class ResourcefulViewsTest < ActionController::TestCase
-
+  tests(ApplicationController)
+  
   def setup
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
