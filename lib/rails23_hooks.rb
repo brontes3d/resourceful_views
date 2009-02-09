@@ -2,7 +2,7 @@ ActionView::PathSet.class_eval do
 
   def find_template_with_extra_default_paths(original_template_path, format = nil)
     find_template_without_extra_default_paths(original_template_path, format)
-  rescue ActionView::MissingTemplate => e        
+  rescue ActionView::MissingTemplate => e_original        
     parts = original_template_path.split("/")
   
     theme = nil
@@ -15,15 +15,19 @@ ActionView::PathSet.class_eval do
       parts[0] = "themes/#{theme}"
       begin
         return find_template_without_extra_default_paths(parts.join("/"), format)
-      rescue ActionView::MissingTemplate => e
+      rescue ActionView::MissingTemplate => e_theme
         #fall through to next
       end
     end
   
     parts = original_template_path.split("/")
     parts[0] = "default"
-  
-    find_template_without_extra_default_paths(parts.join("/"), format)
+    
+    begin
+      find_template_without_extra_default_paths(parts.join("/"), format)
+    rescue ActionView::MissingTemplate => e_default
+      raise e_original
+    end
   end
 
   alias_method_chain :find_template, :extra_default_paths
