@@ -54,3 +54,20 @@ class HeavyController < ApplicationController
   resourceful_views_theme :red
   
 end
+
+module Admin
+  
+  class SecretsController < ApplicationController
+        
+    def basic_test
+      render :action => 'basic_test'
+    end
+    
+    def admin_index
+    end
+  
+  end
+  
+end
+
+

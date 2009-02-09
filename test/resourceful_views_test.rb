@@ -9,6 +9,28 @@ class ResourcefulViewsTest < ActionController::TestCase
     @response   = ActionController::TestResponse.new
   end
   
+  def test_compile_paths_to_check
+    assert_equal(
+      [
+        ["admin", "controller_folder", "themes/theme_name", "view_name"], 
+        ["admin", "themes/theme_name", "another_folder", "view_name"], 
+        ["themes/theme_name", "controller_folder", "another_folder", "view_name"], 
+        ["admin", "controller_folder", "default", "view_name"], 
+        ["admin", "default", "another_folder", "view_name"], 
+        ["default", "controller_folder", "another_folder", "view_name"]],
+      ResourcefulViews.compile_paths_to_check("admin/controller_folder/another_folder/view_name".split("/"), "theme_name")
+    )
+  end
+  
+  def test_admin_controller
+    @controller = Admin::SecretsController.new
+    get "basic_test"
+    assert_equal("basic test ok", @response.body)
+
+    get "admin_index"
+    assert_equal("this is admin index default page", @response.body)
+  end
+  
   def test_render_resource
     #light is not overriden, so should return result of default
     @controller = LightController.new

@@ -92,17 +92,33 @@ module ResourcefulViews
   end
   
   def self.determine_view_path_from_parts(parts, theme = nil)
-    controller_name = parts.first
-    action = parts.last
-    if( yield "#{controller_name}", "#{action}" )
-      return "#{controller_name}/#{action}"
-    elsif( theme && yield("themes/#{theme}", "#{action}") )
-      return "themes/#{theme}/#{action}"
-    elsif( yield "default", "#{action}" )
-      return "default/#{action}"
-    else
-      return nil
-    end    
+    if yield parts[0,parts.size - 1].join("/"), parts.last
+      return parts.join("/")
+    end
+    compile_paths_to_check(parts, theme).each do |parts_to_check|
+      if( yield parts_to_check[0,parts_to_check.size - 1].join("/"), parts_to_check.last )
+        return parts_to_check.join("/")
+      end
+    end
+    return nil
+  end
+  
+  def self.compile_paths_to_check(parts, theme = nil)
+    to_return = []
+    times_to_iteration = parts.size - 1
+    if theme
+      (times_to_iteration).times do |iteration|
+        this_one = parts.dup
+        this_one[times_to_iteration - iteration - 1] = "themes/#{theme}"
+        to_return << this_one
+      end
+    end
+    (times_to_iteration).times do |iteration|
+      this_one = parts.dup
+      this_one[times_to_iteration - iteration - 1] = "default"
+      to_return << this_one
+    end
+    to_return
   end
   
 end
