@@ -1,6 +1,6 @@
 ActionView::PathSet.class_eval do
 
-  def find_template_with_extra_default_paths(original_template_path, format = nil)
+  def find_template_with_extra_default_paths(original_template_path, format = nil, html_fallback = true)
     find_template_without_extra_default_paths(original_template_path, format)
   rescue ActionView::MissingTemplate => e_original        
     parts = original_template_path.split("/")
