@@ -32,12 +32,12 @@ class ResourcefulViewsTest < ActionController::TestCase
   end
   
   def test_render_resource
-    #light is not overriden, so should return result of default
+    #light is not overridden, so should return result of default
     @controller = LightController.new
     get "render_resource_test"
     assert_equal("this is default render_resource_test", @response.body)
     
-    #medium is overriden, so should return result of medium
+    #medium is overridden, so should return result of medium
     @controller = MediumController.new
     get "render_resource_test"
     assert_equal("this is medium render_resource_test", @response.body)
@@ -49,12 +49,12 @@ class ResourcefulViewsTest < ActionController::TestCase
   end
 
   def test_render_action
-    #light is not overriden, so should return result of default
+    #light is not overridden, so should return result of default
     @controller = LightController.new
     get "render_action_test"
     assert_equal("this is default render_action_test", @response.body)
     
-    #medium is overriden, so should return result of medium
+    #medium is overridden, so should return result of medium
     @controller = MediumController.new
     get "render_action_test"
     assert_equal("this is medium render_action_test", @response.body)
@@ -66,12 +66,12 @@ class ResourcefulViewsTest < ActionController::TestCase
   end
   
   def test_render_resource_partial
-    #light is not overriden, so should return result of default
+    #light is not overridden, so should return result of default
     @controller = LightController.new
     get "render_resource_partial_test"
     assert_equal("this is default render_resource_partial_test", @response.body)
 
-    #medium is overriden, so should return result of medium
+    #medium is overridden, so should return result of medium
     @controller = MediumController.new
     get "render_resource_partial_test"
     assert_equal("this is medium render_resource_partial_test", @response.body)
@@ -83,12 +83,12 @@ class ResourcefulViewsTest < ActionController::TestCase
   end
 
   def test_render_partial
-    #light is not overriden, so should return result of default
+    #light is not overridden, so should return result of default
     @controller = LightController.new
     get "render_partial_test"
     assert_equal("this is default render_partial_test", @response.body)
 
-    #medium is overriden, so should return result of medium
+    #medium is overridden, so should return result of medium
     @controller = MediumController.new
     get "render_partial_test"
     assert_equal("this is medium render_partial_test", @response.body)
@@ -117,17 +117,17 @@ class ResourcefulViewsTest < ActionController::TestCase
   end
   
   def test_default_content_for
-    #default_content_for is called and not overriden
+    #default_content_for is called and not overridden
     @controller = LightController.new
     get "default_content_for_test"
     assert_equal("content in default_content_for block", @response.body)
     
-    #default_content_for is overriden and then called
+    #default_content_for is overridden and then called
     @controller = MediumController.new
     get "default_content_for_test"
     assert_equal("content in content_for block", @response.body)
         
-    #default_content_for is called in defaults, overriden by view specific partial
+    #default_content_for is called in defaults, overridden by view specific partial
     @controller = HeavyController.new
     get "default_content_for_test"
     assert_equal("content in heavy for default_content_test", @response.body)        
