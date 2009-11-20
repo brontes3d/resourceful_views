@@ -1,14 +1,14 @@
 ActionView::PathSet.class_eval do
 
   def find_template_with_extra_default_paths(original_template_path, format = nil, html_fallback = true)
-    puts "original_template_path #{original_template_path}"
+    # puts "original_template_path #{original_template_path}"
     find_template_without_extra_default_paths(original_template_path, format)
   rescue ActionView::MissingTemplate => e_original        
     parts = original_template_path.split("/")
     
     template_exists_checker = Proc.new do |template_name|
       begin
-        puts "looking for template #{template_name}"
+        # puts "looking for template #{template_name}"
         find_template_without_extra_default_paths(template_name, format)
       rescue ActionView::MissingTemplate
         false

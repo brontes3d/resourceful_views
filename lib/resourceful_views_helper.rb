@@ -109,12 +109,16 @@ module ResourcefulViewsHelper
   # will still use the content defined in the block given to +default_content_for+
   #  
   def default_content_for(view, &block)
+    set_default_content_for(view, &block)
+    # puts "yielding #{view}, content should be " + eval("@content_for_#{view.to_s}").inspect
+    concat(eval("yield :#{view.to_s}", block.binding))
+  end
+  
+  def set_default_content_for(view, &block)
     if get_content_for(view).blank?
       # puts "content blank"
       eval "@content_for_#{view.to_s} = capture(&block)"
     end
-    # puts "yielding #{view}, content should be " + eval("@content_for_#{view.to_s}").inspect
-    concat(eval("yield :#{view.to_s}", block.binding))
   end
     
   # Basically the equivalent of 
