@@ -1,5 +1,9 @@
 module ResourcefulViews
   
+  def self.controller_view_packages
+    @@controller_view_packages ||= {}
+  end
+  
   # init.rb extends ActionController::Base with this module
   #
   # Provides controllers with:
@@ -10,6 +14,11 @@ module ResourcefulViews
     # Provides ActionController::Base with resourceful_views_theme for defining the theme folder to use for a given controller 
     def self.included(base)
       base.class_eval do
+        
+        def self.resourceful_views(*view_packages)
+          ResourcefulViews.controller_view_packages[self] = view_packages
+        end
+        
         # Call this in your controller to specify the name of the themes folder to use for views on this controller
         #
         # For Example, you might make it 'admin' and then have a folder called admin which has the default views for admin resources
@@ -82,20 +91,20 @@ module ResourcefulViews
   def self.determine_view_path(controller, action, theme_given_explicitly = false, &block)# :yields: base_path, file_name
     controller_name = controller.class.controller_path
     action = action.to_s
-    theme = nil
+    themes = []
     if theme_given_explicitly
-      theme = theme_given_explicitly
+      themes << theme_given_explicitly
     elsif controller.respond_to?(:resourceful_views_theme)
-      theme = controller.resourceful_views_theme(action)
+      themes << controller.resourceful_views_theme(action)
     end
-    determine_view_path_from_parts([controller_name, action], theme, &block)
+    determine_view_path_from_parts([controller_name, action], themes, &block)
   end
   
-  def self.determine_view_path_from_parts(parts, theme = nil)
+  def self.determine_view_path_from_parts(parts, themes = [])
     if yield parts[0,parts.size - 1].join("/"), parts.last
       return parts.join("/")
     end
-    compile_paths_to_check(parts, theme).each do |parts_to_check|
+    compile_paths_to_check(parts, themes).each do |parts_to_check|
       if( yield parts_to_check[0,parts_to_check.size - 1].join("/"), parts_to_check.last )
         return parts_to_check.join("/")
       end
@@ -103,13 +112,14 @@ module ResourcefulViews
     return nil
   end
   
-  def self.compile_paths_to_check(parts, theme = nil)
+  def self.compile_paths_to_check(parts, themes = [])
     to_return = []
     times_to_iteration = parts.size - 1
-    if theme
+    themes.each do |theme|
+      theme_path = theme.is_a?(String) ? "themes/#{theme}" : theme.views_path
       (times_to_iteration).times do |iteration|
         this_one = parts.dup
-        this_one[times_to_iteration - iteration - 1] = "themes/#{theme}"
+        this_one[times_to_iteration - iteration - 1] = theme_path
         to_return << this_one
       end
     end

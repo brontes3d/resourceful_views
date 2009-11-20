@@ -1,26 +1,33 @@
 ActionView::PathSet.class_eval do
 
   def find_template_with_extra_default_paths(original_template_path, format = nil, html_fallback = true)
+    puts "original_template_path #{original_template_path}"
     find_template_without_extra_default_paths(original_template_path, format)
   rescue ActionView::MissingTemplate => e_original        
     parts = original_template_path.split("/")
     
     template_exists_checker = Proc.new do |template_name|
       begin
+        puts "looking for template #{template_name}"
         find_template_without_extra_default_paths(template_name, format)
       rescue ActionView::MissingTemplate
         false
       end
     end
     
-    theme = nil
+    themes = []
     if self.respond_to?(:controller)
+      if view_packages = ResourcefulViews.controller_view_packages[controller.class]
+        view_packages.each do |view_package|
+          themes << view_package
+        end
+      end
       if controller.respond_to?(:resourceful_views_theme)
-        theme = controller.resourceful_views_theme(controller.action_name)
+        themes << controller.resourceful_views_theme(controller.action_name)
       end
     end
     
-    template_path = ResourcefulViews.determine_view_path_from_parts(parts, theme) do |path_base, path_last|
+    template_path = ResourcefulViews.determine_view_path_from_parts(parts, themes) do |path_base, path_last|
       if found = template_exists_checker.call("#{path_base}/#{path_last}")
         return found
       end

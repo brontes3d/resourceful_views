@@ -4,15 +4,12 @@ require 'resourceful_views_helper'
 require 'resourceful_views'
 
 ActionController::Base.helper ResourcefulViewsHelper
+ActionView::Base.class_eval do
+  include ResourcefulViewsHelper
+end
 
 ActionController::Base.class_eval do
   include ResourcefulViews::ActionControllerExtensions
 end
 
-if ActionController::Base.private_instance_methods.include?('template_exists?')
-  #Rails 2.2 and earlier:
-  require 'rails22_hooks'
-else
-  #Rails 2.3 and later:
-  require 'rails23_hooks'
-end
+require 'rails23_hooks'
